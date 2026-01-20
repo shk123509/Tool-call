@@ -13,7 +13,7 @@ export default function HomePage() {
     <div className="min-h-screen bg-white text-slate-900 selection:bg-blue-100 font-sans">
       
       {/* --- Infinite Logo Slider --- */}
-      {/* <div className="w-full bg-slate-900 py-6 overflow-hidden flex items-center border-b border-white/5 mt-[72px] relative z-20">
+      <div className="w-full bg-slate-900 py-6 overflow-hidden flex items-center border-b border-white/5 mt-[72px] relative z-20">
         <div className="flex whitespace-nowrap animate-scroll gap-20 items-center opacity-80">
           {[...Array(10)].map((_, i) => (
             <div key={i} className="flex items-center gap-6 text-white font-black text-sm uppercase tracking-[0.2em]">
@@ -23,7 +23,7 @@ export default function HomePage() {
             </div>
           ))}
         </div>
-      </div> */}
+      </div>
 
       {/* --- Hero Section --- */}
       <header className="relative pt-20 pb-24 px-6">

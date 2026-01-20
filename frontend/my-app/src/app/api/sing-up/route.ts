@@ -1,84 +1,97 @@
 import UserModel from "@/models/User";
 import dbConnect from "@/lib/dbConnect"
-import { NextRequest, NextResponse } from "next/server";
-import bcryptjs from "bcryptjs";
-import jwt from "jsonwebtoken"
+import bcrypt from "bcryptjs";
+import { sendVerifictionemail } from "@/helper/sendVerificationEmail";
 
 
-
-
-export async function POST(request: NextRequest) {
+export async function POST(request : Request) {
     await dbConnect()
+
     try {
-        const reqBody = await request.json()
-        const { email, password } = reqBody
+    const {username, email, password} = await request.json();
 
-        if (!email) {
-            return NextResponse.json(
-                {
-                    message: "Email is reuired fileds"
-                },
-                {
-                    status: 400
-                }
-            )
+    const verifyCode = Math.floor(100000 + Math.random() * 900000).toString()
+
+
+    const existuserbyemailverifaction = await UserModel.findOne(
+        {
+            email,
+            isVerified : true
         }
-        if (!password) {
-            return NextResponse.json(
-                {
-                    message: "Password is reuired fileds"
-                },
-                {
-                    status: 400
-                }
-            )
+    )
+
+    if (existuserbyemailverifaction) {
+        return Response.json({
+            message : "User exist with this same email",
+            success : false
+        },{status : 400})
+    }
+
+    const existuserwithemail = await UserModel.findOne(
+        {
+            email
         }
+    )
 
-        const user = await UserModel.findOne({ email });
+    if (existuserwithemail) {
+       if (existuserwithemail.isVerified) {
+          return Response.json({
+            message :"User already exist with this same emial.",
+            success : false
+        },{status : 400})
+       }
+       else {
+        const hashpassword = await bcrypt.hash(password, 10);
+        existuserwithemail.password = hashpassword;
+        existuserwithemail.verifyCode = verifyCode;
+        existuserwithemail.verifyCodeExpiry = new Date(Date.now() + 3600000)
+        await existuserwithemail.save()
+       }
+    }
+    else {
+        const hashpassword = await bcrypt.hash(password, 10);
 
-        if (!user) {
-            return NextResponse.json({ error: "User dose not exist" }, { status: 400 })
-        }
+        const expire = new Date(Date.now() + 3600000)
 
-        const valifPassword = await bcryptjs.compare(password, user.password)
-
-        if (!valifPassword) {
-            return NextResponse.json({ error: "Password is not corrects" }, { status: 400 })
-        }
-
-        const token =  jwt.sign(
-            {
-                id: user._id,
-                email: user.email,
-                password : user.password
-            },
-            process.env.TOKEN_SECRET!,
-            {
-                expiresIn: "1d"
-            }
-        )
-
-        const response = NextResponse.json({
-            message: "Login successful",
-            success: true,
+        const createUser = await UserModel.create({
+            username,
+            email,
+            password: hashpassword,
+            verifyCode,
+            verifyCodeExpiry:expire, 
+            isVerified: false,
+            isAcceptingMessages:true,
+            messages: []
         })
 
-        response.cookies.set("token", token, {
-            httpOnly: true,
-        })
+        if (!createUser) {
+            return Response.json({
+            message :"User dose not created.",
+            success : false
+        },{status : 400})
+        }
+    }
 
-        return response
+    // Send verifaction code.
+    const emailsendres = await sendVerifictionemail(email, username, verifyCode)
+
+    if (!emailsendres.success) {
+        return Response.json({
+            message :"Somthing went wrong to send messages.",
+            success : false
+        },{status : 400})
+    }
+
+    return Response.json({
+            message :"User register successfully Verify your account.",
+            success : true
+        },{status : 200})
 
 
-
-    } catch (error: any) {
-        return NextResponse.json(
-            {
-                error: error.message
-            },
-            {
-                status: 500
-            }
-        )
+    } catch (error) {
+        return Response.json({
+            message :error,
+            success : false
+        },{status : 500})
     }
 }

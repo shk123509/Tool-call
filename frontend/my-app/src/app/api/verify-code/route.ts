@@ -1,84 +1,57 @@
 import UserModel from "@/models/User";
 import dbConnect from "@/lib/dbConnect"
-import { NextRequest, NextResponse } from "next/server";
-import bcryptjs from "bcryptjs";
-import jwt from "jsonwebtoken"
 
 
 
-
-export async function POST(request: NextRequest) {
+export async function POST(request: Request) {
     await dbConnect()
+
     try {
-        const reqBody = await request.json()
-        const { email, password } = reqBody
 
-        if (!email) {
-            return NextResponse.json(
-                {
-                    message: "Email is reuired fileds"
-                },
-                {
-                    status: 400
-                }
-            )
-        }
-        if (!password) {
-            return NextResponse.json(
-                {
-                    message: "Password is reuired fileds"
-                },
-                {
-                    status: 400
-                }
-            )
+        const { username, code } = await request.json();
+
+        if (!username) {
+            return Response.json({ success: false, message: "user name is reuired fileds" }, { status: 400 })
         }
 
-        const user = await UserModel.findOne({ email });
+        if (!code) {
+            return Response.json({ success: false, message: "code is reuired fileds" }, { status: 400 })
+        }
+
+        
+
+        const decodeuser = decodeURIComponent(username)
+
+        const user = await UserModel.findOne({ username: decodeuser })
+
+
 
         if (!user) {
-            return NextResponse.json({ error: "User dose not exist" }, { status: 400 })
+            return Response.json({ success: false, message: "User dose not exist" }, { status: 400 })
         }
 
-        const valifPassword = await bcryptjs.compare(password, user.password)
+        const isCode = user.verifyCode === code;
+        const isCodeNotExpired = new Date(user.verifyCodeExpiry) > new Date();
 
-        if (!valifPassword) {
-            return NextResponse.json({ error: "Password is not corrects" }, { status: 400 })
+        if (isCode && isCodeNotExpired) {
+            user.isVerified = true
+            await user.save()
+            return Response.json({ success: true, message: "Account verified successfully" }, { status: 200 })
         }
 
-        const token =  jwt.sign(
-            {
-                id: user._id,
-                email: user.email,
-                password : user.password
-            },
-            process.env.TOKEN_SECRET!,
-            {
-                expiresIn: "1d"
-            }
-        )
+        else if (!isCode) {
+            return Response.json({ success: false, message: "code is not correct" }, { status: 400 })
+        }
 
-        const response = NextResponse.json({
-            message: "Login successful",
-            success: true,
-        })
+        else {
+            return Response.json({ success: false, message: "date is expires." }, { status: 400 })
+        }
 
-        response.cookies.set("token", token, {
-            httpOnly: true,
-        })
-
-        return response
-
-
+        
 
     } catch (error: any) {
-        return NextResponse.json(
-            {
-                error: error.message
-            },
-            {
-                status: 500
-            }
-        )
+        return Response.json({ success: false, message: "somting went wrong while verify code." }, { status: 500 })
     }
 }
+
+

@@ -1,6 +1,12 @@
 "use client";
 import React, { useState } from "react";
-import { Menu, X, CheckCircle, Zap, Shield, BarChart, Globe, ArrowRight } from "lucide-react";
+import Link from "next/link";
+import { 
+  Menu, X, CheckCircle, Zap, Shield, 
+  BarChart, Globe, ArrowRight, Twitter, 
+  Linkedin, Github, Terminal 
+} from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function LandingPage() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -22,7 +28,7 @@ export default function LandingPage() {
           background-image: linear-gradient(#111 1px, transparent 1px),
             linear-gradient(90deg, #111 1px, transparent 1px);
           background-size: 50px 50px;
-          opacity: 0.2;
+          opacity: 0.25;
           pointer-events: none;
           z-index: 0;
         }
@@ -34,247 +40,212 @@ export default function LandingPage() {
           padding: 1rem 5%;
           position: fixed;
           top: 0; width: 100%;
-          background: rgba(0, 0, 0, 0.8);
-          backdrop-filter: blur(12px);
-          border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+          background: rgba(0, 0, 0, 0.7);
+          backdrop-filter: blur(16px);
+          border-bottom: 1px solid rgba(255, 255, 255, 0.08);
           z-index: 100;
         }
 
         .hero {
-          padding: 160px 20px 80px;
+          padding: 180px 20px 100px;
           text-align: center;
-          max-width: 1000px;
+          max-width: 1100px;
           margin: 0 auto;
           position: relative;
         }
 
-        .hero-badge {
-          background: rgba(59, 130, 246, 0.1);
-          color: #60a5fa;
-          padding: 6px 16px;
-          border-radius: 99px;
-          font-size: 0.85rem;
-          font-weight: 600;
-          border: 1px solid rgba(59, 130, 246, 0.2);
-          margin-bottom: 20px;
-          display: inline-block;
-        }
-
         .hero h1 {
-          font-size: clamp(2.5rem, 10vw, 5.5rem);
+          font-size: clamp(2.8rem, 9vw, 6rem);
           font-weight: 900;
           letter-spacing: -4px;
-          line-height: 0.95;
-          margin-bottom: 24px;
-          background: linear-gradient(to bottom, #fff 40%, #888);
+          line-height: 0.9;
+          margin-bottom: 30px;
+          background: linear-gradient(to bottom, #ffffff 50%, #555);
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
         }
 
         .hero p {
-          font-size: clamp(1rem, 4vw, 1.25rem);
-          color: #888;
-          max-width: 600px;
-          margin: 0 auto 40px;
-          line-height: 1.6;
-        }
-
-        .btn-group {
-          display: flex;
-          gap: 15px;
-          justify-content: center;
-          flex-wrap: wrap;
+          font-size: clamp(1rem, 4vw, 1.3rem);
+          color: #999;
+          max-width: 650px;
+          margin: 0 auto 48px;
+          line-height: 1.5;
         }
 
         .btn-primary {
           background: #fff;
           color: #000;
-          padding: 16px 36px;
-          border-radius: 12px;
-          font-weight: 700;
-          transition: 0.3s;
+          padding: 16px 40px;
+          border-radius: 14px;
+          font-weight: 800;
+          transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
           display: flex;
           align-items: center;
-          gap: 8px;
+          gap: 10px;
         }
 
-        .btn-primary:hover { transform: scale(1.05); box-shadow: 0 0 30px rgba(255,255,255,0.2); }
-
-        .section-title {
-          text-align: center;
-          margin-bottom: 60px;
-          padding: 0 20px;
+        .btn-primary:hover { 
+          transform: translateY(-4px); 
+          box-shadow: 0 15px 30px rgba(255,255,255,0.15); 
         }
 
-        .section-title h2 { font-size: 2.5rem; font-weight: 800; letter-spacing: -1px; }
-
-        .features-grid {
+        .features-section {
+          padding: 100px 5%;
           display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-          gap: 20px;
-          max-width: 1200px;
+          grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+          gap: 24px;
+          max-width: 1300px;
           margin: 0 auto;
-          padding: 40px 20px;
         }
 
         .feature-card {
-          background: #0a0a0a;
+          background: linear-gradient(145deg, #0a0a0a, #111);
           border: 1px solid #1a1a1a;
-          padding: 40px;
-          border-radius: 24px;
+          padding: 48px;
+          border-radius: 32px;
+          transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+          border-color: #3b82f6;
+          box-shadow: 0 0 40px rgba(59, 130, 246, 0.1);
+        }
+
+        .footer-link {
+          color: #666;
           transition: 0.3s;
-        }
-
-        .feature-card:hover { border-color: #333; background: #0f0f0f; }
-
-        .icon-box {
-          width: 50px; h-height: 50px;
-          background: rgba(255,255,255,0.05);
-          border-radius: 12px;
-          display: flex; align-items: center; justify-content: center;
-          margin-bottom: 20px;
-          color: #60a5fa;
-        }
-
-        .stats-section {
-          background: #050505;
-          padding: 80px 20px;
-          border-top: 1px solid #111;
           display: flex;
-          justify-content: space-around;
-          flex-wrap: wrap;
-          gap: 40px;
+          align-items: center;
+          gap: 6px;
         }
 
-        .stat-item h4 { font-size: 3rem; font-weight: 900; color: #fff; margin:0;}
-        .stat-item p { color: #555; font-weight: 600; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 1px;}
-
-        .mobile-menu {
-          position: fixed; top: 70px; left: 0; width: 100%; height: 100vh;
-          background: #000; z-index: 99; padding: 40px;
-          display: flex; flex-direction: column; gap: 30px;
-          transform: translateX(${isMenuOpen ? '0' : '100%'});
-          transition: 0.4s ease-in-out;
-        }
+        .footer-link:hover { color: #fff; }
 
         @media (max-width: 768px) {
-          .hero { padding-top: 120px; }
-          .hero h1 { letter-spacing: -2px; }
-          .btn-primary, .btn-secondary { width: 100%; justify-content: center; }
+          .hero { padding-top: 140px; }
+          .btn-group { flex-direction: column; width: 100%; }
+          .btn-primary { width: 100%; justify-content: center; }
         }
       `}</style>
 
       <div className="page-wrapper">
         <div className="grid-bg"></div>
         
-        <nav>
-          <div style={{fontWeight: 900, fontSize: '1.4rem', letterSpacing: '-1px'}}>
-            Job<span style={{color:'#3b82f6'}}>AI</span>
+        {/* <nav>
+          <div className="flex items-center gap-3">
+            <Link href="/" className="flex items-center gap-2">
+              <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center font-bold text-white">J</div>
+              <span className="text-xl font-black tracking-tighter">Job<span className="text-blue-500">AI</span></span>
+            </Link>
           </div>
           
-          <div className="hidden md:flex" style={{display: 'flex', gap: '30px', fontSize: '0.9rem', color: '#888'}}>
-            <a href="#" style={{color:'#fff'}}>Product</a>
-            <a href="#">Solutions</a>
-            <a href="#">Pricing</a>
-            <a href="#">Company</a>
+          <div className="hidden md:flex gap-10 items-center text-sm font-semibold text-gray-400">
+            <Link href="/chatbot" className="hover:text-white transition">Product</Link>
+            <Link href="/features" className="hover:text-white transition">Features</Link>
+            <Link href="/pricing" className="hover:text-white transition">Pricing</Link>
+            <Link href="/sign-in" className="bg-white/5 border border-white/10 px-5 py-2 rounded-xl text-white hover:bg-white/10 transition">Login</Link>
           </div>
 
-          <button className="md:hidden" onClick={() => setIsMenuOpen(!isMenuOpen)} style={{background:'none', border:'none', color:'#fff'}}>
+          <button className="md:hidden p-2 bg-white/5 rounded-lg" onClick={() => setIsMenuOpen(!isMenuOpen)}>
             {isMenuOpen ? <X /> : <Menu />}
           </button>
+        </nav> */}
 
-          <button className="btn-primary" style={{padding: '10px 20px', fontSize: '0.8rem', display: 'none' }}>
-             Sign In
-          </button>
-        </nav>
-
-        {/* Mobile Menu */}
-        <div className="mobile-menu">
-          <a href="#" style={{fontSize: '1.5rem', fontWeight: 700}}>Product</a>
-          <a href="#" style={{fontSize: '1.5rem', fontWeight: 700}}>Solutions</a>
-          <a href="#" style={{fontSize: '1.5rem', fontWeight: 700}}>Pricing</a>
-          <button className="btn-primary">Get Started</button>
-        </div>
+        {/* Mobile Sidebar */}
+        <AnimatePresence>
+          {isMenuOpen && (
+            <motion.div 
+              initial={{ x: "100%" }} animate={{ x: 0 }} exit={{ x: "100%" }}
+              className="fixed inset-0 bg-black z-[110] flex flex-col p-10 md:hidden"
+            >
+              <div className="flex justify-between items-center mb-16">
+                <span className="text-2xl font-bold">Menu</span>
+                <X onClick={() => setIsMenuOpen(false)} />
+              </div>
+              <div className="flex flex-col gap-8 text-2xl font-bold">
+                <Link href="/chatbot" onClick={() => setIsMenuOpen(false)}>Assistant</Link>
+                <Link href="/features" onClick={() => setIsMenuOpen(false)}>Features</Link>
+                <Link href="/pricing" onClick={() => setIsMenuOpen(false)}>Pricing</Link>
+                <Link href="/sign-up" className="text-blue-500" onClick={() => setIsMenuOpen(false)}>Get Started</Link>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         <header className="hero">
-          <div className="hero-badge">v2.0 is now live — Experience the future</div>
-          <h1>The AI Assistant <br /> that actually works.</h1>
-          <p>
-            Duniya ka sabse advanced AI engine jo aapke business workflows ko automate karta hai. 
-            Real-time learning aur human-like context ke saath.
-          </p>
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+            <div className="inline-flex items-center gap-2 bg-blue-500/10 border border-blue-500/20 px-4 py-1.5 rounded-full text-blue-400 text-xs font-bold mb-8">
+              <Terminal size={14} /> NEW: API v3.0 IS OUT
+            </div>
+            <h1>Automate with <br /> Human Precision.</h1>
+            <p>
+              JobAI adapts to your voice, learns your business, and handles customer support 
+              better than a human. No scripts, just pure intelligence.
+            </p>
 
-          <div className="btn-group">
-            <button className="btn-primary">
-              Start Building <ArrowRight size={18} />
-            </button>
-            <button className="btn-secondary">View Documentation</button>
-          </div>
+            <div className="flex flex-wrap justify-center gap-4">
+              <Link href="/sign-up" className="btn-primary">
+                Get Started Free <ArrowRight size={20} />
+              </Link>
+              <Link href="/chatbot" className="px-8 py-4 rounded-xl border border-white/10 font-bold hover:bg-white/5 transition flex items-center gap-2">
+                Try Demo
+              </Link>
+            </div>
+          </motion.div>
         </header>
 
-        <section className="stats-section">
-          <div className="stat-item">
-            <h4>99.9%</h4>
-            <p>Uptime Guaranteed</p>
+        {/* Bento Grid Features */}
+        <section className="features-section">
+          <div className="feature-card">
+            <div className="w-12 h-12 bg-blue-600/20 rounded-2xl flex items-center justify-center text-blue-500 mb-6">
+              <Zap fill="currentColor" />
+            </div>
+            <h3 className="text-xl font-bold mb-4">Instant Deployment</h3>
+            <p className="text-gray-500 leading-relaxed">Connect your data sources and go live in less than 5 minutes. No coding required.</p>
           </div>
-          <div className="stat-item">
-            <h4>150M+</h4>
-            <p>Requests Handled</p>
+
+          <div className="feature-card">
+            <div className="w-12 h-12 bg-emerald-600/20 rounded-2xl flex items-center justify-center text-emerald-500 mb-6">
+              <Globe />
+            </div>
+            <h3 className="text-xl font-bold mb-4">Native Hinglish</h3>
+            <p className="text-gray-500 leading-relaxed">Perfectly understands the Indian context. Switches between Hindi and English naturally.</p>
           </div>
-          <div className="stat-item">
-            <h4>0.1s</h4>
-            <p>Avg. Response Time</p>
+
+          <div className="feature-card">
+            <div className="w-12 h-12 bg-purple-600/20 rounded-2xl flex items-center justify-center text-purple-500 mb-6">
+              <BarChart />
+            </div>
+            <h3 className="text-xl font-bold mb-4">Real-time Insights</h3>
+            <p className="text-gray-500 leading-relaxed">Track every interaction and sentiment with our advanced analytics dashboard.</p>
           </div>
         </section>
 
-        <section style={{padding: '100px 0'}}>
-          <div className="section-title">
-            <h2>Everything you need <br /> to scale faster.</h2>
-          </div>
-
-          <div className="features-grid">
-            <div className="feature-card">
-              <div className="icon-box"><Zap fill="currentColor" /></div>
-              <h3>Ultra Fast Integration</h3>
-              <p>Sirf 2 lines ka code aur aapka AI assistant ready hai. No complex setups.</p>
+        {/* Footer with proper Link components */}
+        <footer className="mt-20 border-t border-white/5 py-12 px-5 max-w-7xl mx-auto">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-8">
+            <div className="flex items-center gap-2">
+              <div className="w-6 h-6 bg-blue-600 rounded flex items-center justify-center font-bold text-[10px]">J</div>
+              <span className="font-bold">JobAI</span>
             </div>
 
-            <div className="feature-card">
-              <div className="icon-box"><Globe /></div>
-              <h3>Multilingual Support</h3>
-              <p>Pure Bharat ke liye built. English, Hindi aur Hinglish me seamless baatein.</p>
+            <div className="flex gap-8">
+              <Link href="https://twitter.com/jobai" className="footer-link">
+                <Twitter size={18} /> <span>Twitter</span>
+              </Link>
+              <Link href="https://github.com/jobai" className="footer-link">
+                <Github size={18} /> <span>Github</span>
+              </Link>
+              <Link href="https://linkedin.com/company/jobai" className="footer-link">
+                <Linkedin size={18} /> <span>LinkedIn</span>
+              </Link>
             </div>
 
-            <div className="feature-card">
-              <div className="icon-box"><Shield /></div>
-              <h3>Enterprise Security</h3>
-              <p>Bank-grade encryption aur data privacy protection har conversation me.</p>
-            </div>
-
-            <div className="feature-card">
-              <div className="icon-box"><BarChart /></div>
-              <h3>Advanced Analytics</h3>
-              <p>Understand user behavior with deep data visualization and heatmaps.</p>
+            <div className="text-gray-600 text-sm">
+              © 2026 SmartAI Technologies Inc.
             </div>
           </div>
-        </section>
-
-        <section style={{padding: '100px 20px', textAlign: 'center', background: 'linear-gradient(to bottom, #000, #050505)'}}>
-           <div style={{maxWidth: '800px', margin: '0 auto', border: '1px solid #222', padding: '60px', borderRadius: '40px', background: 'radial-gradient(circle at top right, #111, #000)'}}>
-              <h2 style={{fontSize: '2.5rem', marginBottom: '20px'}}>Ready to automate?</h2>
-              <p style={{color: '#888', marginBottom: '40px'}}>Join 2,000+ companies already using JobAI to power their support.</p>
-              <button className="btn-primary" style={{margin: '0 auto'}}>Get Started Now</button>
-           </div>
-        </section>
-
-        <footer style={{borderTop: '1px solid #111', padding: '60px 20px', textAlign: 'center'}}>
-          <div style={{marginBottom: '20px', fontWeight: 800}}>JobAI</div>
-          <div style={{display: 'flex', gap: '20px', justifyContent: 'center', color: '#555', fontSize: '0.9rem', marginBottom: '40px'}}>
-            <a href="#">Twitter</a>
-            <a href="#">LinkedIn</a>
-            <a href="#">Github</a>
-          </div>
-          <p style={{color: '#333', fontSize: '0.8rem'}}>© 2026 SmartAI Technologies. All rights reserved.</p>
         </footer>
       </div>
     </>

@@ -1,158 +1,165 @@
 "use client";
-
 import React, { useState } from "react";
 import Link from "next/link";
-import { Check, Zap, ArrowRight } from "lucide-react";
+import { Check, Zap, ArrowRight, X, Lock, Unlock, Smartphone } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 const PricingPage = () => {
   const [isAnnual, setIsAnnual] = useState(false);
+  const [showPayModal, setShowPayModal] = useState(false);
+  const [isPaid, setIsPaid] = useState(false);
+  const [hasCopied, setHasCopied] = useState(false);
+
+  // Special Pro Key jo pay karne ke baad milegi
+  const PRO_API_KEY = "AIzaSyCwo23aTs5d8AD_60Q-LP_44LSoiPlPoF8";
+
+  const handleProUpgrade = () => {
+    setIsPaid(false);
+    setHasCopied(false);
+    setShowPayModal(true);
+  };
+
+  const unlockAndCopy = () => {
+    if (!isPaid) return;
+
+    // Stable Copy Logic
+    const textArea = document.createElement("textarea");
+    textArea.value = PRO_API_KEY;
+    document.body.appendChild(textArea);
+    textArea.select();
+    try {
+      document.execCommand('copy');
+      setHasCopied(true);
+      setTimeout(() => {
+        setShowPayModal(false);
+      }, 2000);
+    } catch (err) {
+      alert("Copy failed!");
+    }
+    document.body.removeChild(textArea);
+  };
 
   const plans = [
     {
       name: "Free",
       price: "0",
       description: "Perfect for hobbyists and students starting out.",
-      features: [
-        "Up to 5 Projects",
-        "Basic Analytics",
-        "Community Support",
-        "1GB Cloud Storage",
-        "Public API Access",
-      ],
-      buttonText: "Get Started for Free",
+      features: ["Up to 5 Projects", "Basic Analytics", "Community Support", "1GB Storage"],
+      buttonText: "Get Started",
       isPopular: false,
-      href: "/dash", // Directs to dashboard
+      isPro: false,
+      href: "/dash",
     },
     {
       name: "Pro",
       price: isAnnual ? "19" : "29",
       description: "Best for professional developers and freelancers.",
-      features: [
-        "Unlimited Projects",
-        "Advanced Analytics",
-        "24/7 Priority Support",
-        "20GB Cloud Storage",
-        "Custom Domains",
-        "Private Repositories",
-      ],
+      features: ["Unlimited Projects", "Advanced AI Models", "Priority Support", "20GB Storage", "Custom Domains"],
       buttonText: "Upgrade to Pro",
       isPopular: true,
-      href: "http://openai.com/api/pricing/", // In a real app, this might go to /checkout
+      isPro: true, // Ispe payment modal khulega
+      href: "#",
     },
     {
       name: "Enterprise",
       price: "99",
       description: "Scalable solutions for large teams and companies.",
-      features: [
-        "Team Management",
-        "Dedicated Account Manager",
-        "SSO & Advanced Security",
-        "Unlimited Storage",
-        "Custom Contracts",
-        "White-label Branding",
-      ],
+      features: ["Team Management", "Dedicated Manager", "SSO Security", "Unlimited Storage"],
       buttonText: "Contact Sales",
       isPopular: false,
-      href: "https://ai.google.dev/gemini-api/docs/pricing?utm_source=google&utm_medium=cpc&utm_campaign=Cloud-SS-DR-AIS-FY26-global-gsem-1713578&utm_content=text-ad&utm_term=KW_gemini%20api&gad_source=1&gad_campaignid=23417416052&gbraid=0AAAAACn9t64mq-NfBNwig20LsHVVGdu1X&gclid=CjwKCAiA7LzLBhAgEiwAjMWzCNTNQ_tg8jUkiKN0nxu3xu1CCKJS_RNjVax6CtQf66tFYTEqOo4diBoC8NoQAvD_BwE",
+      isPro: false,
+      href: "https://aistudio.google.com/",
     },
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50 py-20 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto">
-        {/* Header Section */}
-        <div className="text-center mb-16">
-          <h2 className="text-indigo-600 font-semibold tracking-wide uppercase">Pricing</h2>
-          <h1 className="mt-2 text-4xl md:text-6xl font-extrabold text-gray-900 mb-6 tracking-tight">
-            Plans for every stage of growth.
-          </h1>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Start for free and scale as you grow. No hidden costs.
-          </p>
+    <div className="min-h-screen bg-[#050505] text-white py-20 px-4">
+      
+      {/* --- PAYMENT MODAL (REPEATED LOGIC) --- */}
+      <AnimatePresence>
+        {showPayModal && (
+          <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowPayModal(false)} className="absolute inset-0 bg-black/90 backdrop-blur-xl" />
+            <motion.div initial={{ scale: 0.9, y: 30 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 30 }} className="relative w-full max-w-sm bg-slate-900 border border-white/10 rounded-[2.5rem] p-8 shadow-2xl">
+              <div className="text-center">
+                <div className="flex justify-between items-center mb-6">
+                  <span className="text-[10px] font-black text-indigo-400 uppercase tracking-widest">Upgrade to Pro</span>
+                  <X className="cursor-pointer text-slate-500" onClick={() => setShowPayModal(false)} />
+                </div>
+                
+                <div className="bg-white p-3 rounded-2xl mb-6 inline-block shadow-xl">
+                  <img src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=upi://pay?pa=9534439956@ybl&pn=JobAI&am=5&cu=INR`} alt="QR Code" className="w-32 h-32" />
+                </div>
 
-          {/* Billing Toggle */}
+                <div className="bg-black/40 p-4 rounded-2xl border border-white/5 mb-6 text-left space-y-2">
+                  <div className="flex justify-between text-xs"><span className="text-slate-500">UPI ID:</span> <span className="text-indigo-300">9534439956@ybl</span></div>
+                  <div className="flex justify-between text-xs"><span className="text-slate-500">Amount:</span> <span className="text-white font-bold">₹5</span></div>
+                </div>
+
+                <label className="flex items-center gap-3 bg-white/5 p-4 rounded-xl border border-white/10 mb-6 cursor-pointer text-left">
+                  <input type="checkbox" checked={isPaid} onChange={(e) => setIsPaid(e.target.checked)} className="w-5 h-5 accent-emerald-500" />
+                  <span className="text-[11px] text-slate-400">Maine payment kar di hai, Pro Key unlock karein.</span>
+                </label>
+
+                <button 
+                  onClick={unlockAndCopy}
+                  disabled={!isPaid}
+                  className={`w-full py-4 rounded-2xl font-bold transition-all flex items-center justify-center gap-2 ${isPaid ? 'bg-emerald-600 text-white shadow-lg' : 'bg-slate-800 text-slate-500 cursor-not-allowed'}`}
+                >
+                  {hasCopied ? <><Check size={18} /> Copied!</> : <><Unlock size={18} /> Unlock Pro Key</>}
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      <div className="max-w-7xl mx-auto">
+        <div className="text-center mb-16">
+          <h1 className="text-4xl md:text-7xl font-black mb-6 tracking-tighter">Simple <span className="text-indigo-500">Pricing.</span></h1>
+          
           <div className="mt-10 flex justify-center items-center gap-4">
-            <span className={`text-sm font-medium ${!isAnnual ? "text-gray-900" : "text-gray-500"}`}>
-              Monthly
-            </span>
-            <button
-              onClick={() => setIsAnnual(!isAnnual)}
-              className="relative w-14 h-8 flex items-center bg-indigo-600 rounded-full p-1 transition-colors duration-300 focus:outline-none"
-            >
-              <div
-                className={`bg-white w-6 h-6 rounded-full shadow-md transform transition-transform duration-300 ${
-                  isAnnual ? "translate-x-6" : "translate-x-0"
-                }`}
-              />
+            <span className="text-sm font-medium text-gray-500">Monthly</span>
+            <button onClick={() => setIsAnnual(!isAnnual)} className="relative w-14 h-8 bg-indigo-600 rounded-full p-1">
+              <div className={`bg-white w-6 h-6 rounded-full transition-transform ${isAnnual ? "translate-x-6" : "translate-x-0"}`} />
             </button>
-            <span className={`text-sm font-medium ${isAnnual ? "text-gray-900" : "text-gray-500"}`}>
-              Yearly <span className="text-green-500 font-semibold ml-1">(Save 20%)</span>
-            </span>
+            <span className="text-sm font-medium text-white">Yearly (-20%)</span>
           </div>
         </div>
 
-        {/* Pricing Cards Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {plans.map((plan, index) => (
-            <div
-              key={index}
-              className={`relative flex flex-col p-8 bg-white rounded-3xl shadow-xl border transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 ${
-                plan.isPopular ? "border-indigo-600 ring-2 ring-indigo-600 ring-opacity-50" : "border-gray-200"
-              }`}
-            >
+            <div key={index} className={`relative flex flex-col p-8 bg-[#0a0a0a] rounded-[2.5rem] border transition-all hover:border-indigo-500/50 ${plan.isPopular ? "border-indigo-600 ring-1 ring-indigo-600" : "border-white/5"}`}>
               {plan.isPopular && (
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-indigo-600 text-white px-4 py-1 rounded-full text-sm font-bold flex items-center gap-1 shadow-lg">
-                  <Zap size={14} fill="white" />
-                  Most Popular
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-indigo-600 text-white px-4 py-1 rounded-full text-xs font-bold flex items-center gap-1">
+                  <Zap size={12} fill="white" /> Most Popular
                 </div>
               )}
 
               <div className="mb-8">
-                <h3 className="text-2xl font-bold text-gray-900">{plan.name}</h3>
-                <p className="mt-2 text-gray-500 text-sm leading-relaxed">{plan.description}</p>
-                <div className="mt-6 flex items-baseline">
-                  <span className="text-5xl font-extrabold tracking-tight text-gray-900">
-                    ${plan.price}
-                  </span>
-                  <span className="ml-1 text-xl font-medium text-gray-500">
-                    /{isAnnual ? "year" : "month"}
-                  </span>
+                <h3 className="text-xl font-bold">{plan.name}</h3>
+                <div className="mt-4 flex items-baseline">
+                  <span className="text-5xl font-black">${plan.price}</span>
+                  <span className="ml-1 text-gray-500">/{isAnnual ? "yr" : "mo"}</span>
                 </div>
               </div>
 
-              {/* Feature List */}
               <ul className="flex-1 space-y-4 mb-8">
                 {plan.features.map((feature, idx) => (
-                  <li key={idx} className="flex items-start gap-3 text-gray-600">
-                    <Check className="text-indigo-500 w-5 h-5 mt-0.5 flex-shrink-0" />
-                    <span className="text-sm">{feature}</span>
+                  <li key={idx} className="flex items-start gap-3 text-gray-400 text-sm">
+                    <Check className="text-indigo-500 w-4 h-4 mt-0.5" /> {feature}
                   </li>
                 ))}
               </ul>
 
-              {/* Action Button */}
-              <Link href={plan.href} className="w-full">
-                <button
-                  className={`w-full group flex items-center justify-center gap-2 py-4 px-6 rounded-2xl font-bold transition-all duration-200 ${
-                    plan.isPopular
-                      ? "bg-indigo-600 text-white hover:bg-indigo-700 shadow-md hover:shadow-indigo-200"
-                      : "bg-gray-100 text-gray-900 hover:bg-gray-200"
-                  }`}
-                >
-                  {plan.buttonText}
-                  <ArrowRight size={18} className="transition-transform group-hover:translate-x-1" />
-                </button>
-              </Link>
+              <button
+                onClick={plan.isPro ? handleProUpgrade : undefined}
+                className={`w-full py-4 rounded-2xl font-bold transition-all flex items-center justify-center gap-2 ${plan.isPopular ? "bg-indigo-600 hover:bg-indigo-700 shadow-xl shadow-indigo-600/20" : "bg-white/5 hover:bg-white/10"}`}
+              >
+                {plan.isPro ? <><Lock size={18} /> {plan.buttonText}</> : plan.buttonText}
+              </button>
             </div>
           ))}
-        </div>
-
-        {/* Footer Support Info */}
-        <div className="mt-20 text-center">
-          <p className="text-gray-500 text-sm">
-            All plans include a 14-day money-back guarantee. <br className="hidden sm:block" />
-            Questions? <span className="text-indigo-600 font-semibold cursor-pointer underline">Talk to our support team</span>
-          </p>
         </div>
       </div>
     </div>

@@ -10,7 +10,7 @@ from dotenv import load_dotenv
 import requests
 from langchain_core.tools import tool
 from langgraph.prebuilt import ToolNode, tools_condition
-from serpapi import GoogleSearch
+from serpapi.google_search import GoogleSearch
 import smtplib
 from email.message import EmailMessage
 from urllib.parse import urlparse, parse_qs

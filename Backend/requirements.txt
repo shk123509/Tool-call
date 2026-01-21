@@ -11,8 +11,8 @@ langchain-google-genai
 google-generativeai
 google-genai
 
+google-search-results
 twilio
 youtube-transcript-api
-serpapi
 
 typing-extensions

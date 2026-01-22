@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect, useRef } from 'react';
-import { Send, Bot, User, Loader2, MessageSquare, Plus, Trash2, Menu, Key as KeyIcon, LayoutDashboard, X, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Send, Bot, User, MessageSquare, Plus, Trash2, Menu, Key as KeyIcon, LayoutDashboard, X, ChevronLeft, ChevronRight, AlertCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -16,20 +16,12 @@ export default function JobAIDashboard() {
   const [isKeyValid, setIsKeyValid] = useState(false);
   const scrollRef = useRef(null);
 
-  // --- FIX: Reset API Key Function ---
+  // --- Reset API Key Function ---
   const handleResetKey = () => {
-    // 1. Browser ki memory se key permanently delete karo
     localStorage.removeItem('user_gemini_key');
-    
-    // 2. States ko initial position par lao
     setIsKeyValid(false);
     setUserApiKey('');
-    
-    // 3. Mobile par ho toh sidebar close kar do
     if (window.innerWidth < 768) setIsSidebarOpen(false);
-    
-    // 4. (Optional) Page reload taaki saari purani states clear ho jayein
-    // window.location.reload(); 
   };
 
   const createNewChat = () => {
@@ -87,11 +79,14 @@ export default function JobAIDashboard() {
     } else { alert("Arey bhai, sahi API key toh daalo!"); }
   };
 
+  // --- Main Message Handler with Error Management ---
   const handleSendMessage = async () => {
     const currentKey = localStorage.getItem('user_gemini_key') || userApiKey;
     if (!input.trim() || isLoading || !currentKey) return;
+    
     const currentId = activeChatId;
     const userMsg = { role: 'user', content: input };
+    
     setChats(prev => prev.map(chat => {
       if (chat.id === currentId) {
         const newTitle = chat.messages.length === 0 ? input.substring(0, 30) : chat.title;
@@ -99,23 +94,41 @@ export default function JobAIDashboard() {
       }
       return chat;
     }));
+    
     setInput('');
     setIsLoading(true);
+
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/chat`, {
+      const response = await fetch("http://127.0.0.1:8000/chat", {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: input, api_key: currentKey.trim() }),
       });
+
       const data = await response.json();
+
+      // Check if Quota Exhausted (429)
+      if (response.status === 429 || (data.reply && data.reply.includes("RESOURCE_EXHAUSTED"))) {
+        throw new Error("QUOTA_LIMIT");
+      }
+
       setChats(prev => prev.map(chat => 
         chat.id === currentId ? { ...chat, messages: [...chat.messages, { role: 'bot', content: data.reply }] } : chat
       ));
+
     } catch (error) {
+      let errorMessage = "⚠️ Error: Connection lost with AI.";
+      
+      if (error.message === "QUOTA_LIMIT") {
+        errorMessage = "🛑 **QUOTA EXCEEDED:** This API key has exhausted its daily free limit. Please **Reset API Key** from the sidebar and use a new one or get a billing-enabled key to continue.";
+      }
+
       setChats(prev => prev.map(chat => 
-        chat.id === currentId ? { ...chat, messages: [...chat.messages, { role: 'bot', content: "⚠️ Error: API Key check karo ya server down hai." }] } : chat
+        chat.id === currentId ? { ...chat, messages: [...chat.messages, { role: 'bot', content: errorMessage }] } : chat
       ));
-    } finally { setIsLoading(false); }
+    } finally { 
+      setIsLoading(false); 
+    }
   };
 
   const activeChat = chats.find(c => c.id === activeChatId) || { messages: [] };
@@ -165,7 +178,6 @@ export default function JobAIDashboard() {
             </div>
         </div>
 
-        {/* Action Buttons with Working Reset */}
         <div className="mt-auto pt-4 border-t border-white/5 space-y-2 pb-4">
             <button onClick={createNewChat} className={`flex items-center gap-3 w-full p-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 font-bold text-white shadow-lg active:scale-95 ${!isSidebarOpen && 'justify-center'}`}>
                 <Plus size={20} />
@@ -177,7 +189,6 @@ export default function JobAIDashboard() {
                 {isSidebarOpen && <span className="text-xs font-bold text-white">Dashboard</span>}
             </Link>
 
-            {/* RESET BUTTON FIX */}
             <button onClick={handleResetKey} className={`flex items-center gap-3 w-full p-3 rounded-xl bg-red-500/5 hover:bg-red-500/10 border border-red-500/10 transition-all ${!isSidebarOpen && 'justify-center'}`}>
                 <KeyIcon size={20} className="text-red-400" />
                 {isSidebarOpen && <span className="text-xs font-bold text-red-400">Reset API Key</span>}
@@ -215,10 +226,24 @@ export default function JobAIDashboard() {
               <div className={`w-8 h-8 rounded-lg shrink-0 flex items-center justify-center ${msg.role === 'user' ? 'bg-indigo-600' : 'bg-emerald-600'}`}>
                 {msg.role === 'user' ? <User size={16}/> : <Bot size={16}/>}
               </div>
-              <div className={`max-w-[88%] md:max-w-[85%] p-3 md:p-4 rounded-2xl ${msg.role === 'user' ? 'bg-indigo-600/10 border border-indigo-500/20 shadow-sm' : 'bg-white/5 border border-white/10 shadow-sm'}`}>
+              
+              {/* Conditional Styling for Quota Errors */}
+              <div className={`max-w-[88%] md:max-w-[85%] p-3 md:p-4 rounded-2xl ${
+                msg.role === 'user' 
+                ? 'bg-indigo-600/10 border border-indigo-500/20 shadow-sm' 
+                : msg.content.includes("QUOTA EXCEEDED") 
+                  ? 'bg-red-500/10 border border-red-500/30 shadow-[0_0_20px_rgba(239,68,68,0.1)]' 
+                  : 'bg-white/5 border border-white/10 shadow-sm'
+              }`}>
                 <ReactMarkdown remarkPlugins={[remarkGfm]} className="prose prose-invert prose-xs md:prose-sm max-w-none break-words text-gray-100 font-sans">
                   {msg.content}
                 </ReactMarkdown>
+                
+                {msg.content.includes("QUOTA EXCEEDED") && (
+                   <button onClick={handleResetKey} className="mt-3 flex items-center gap-2 text-[10px] font-black uppercase tracking-tighter bg-red-600 text-white px-3 py-2 rounded-lg hover:bg-red-500 transition-all">
+                      <AlertCircle size={12}/> Fix Now
+                   </button>
+                )}
               </div>
             </motion.div>
           ))}

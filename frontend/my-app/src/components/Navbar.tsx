@@ -46,6 +46,7 @@ export default function Navbar() {
         <div className="hidden md:flex items-center gap-8 text-sm font-medium text-gray-400">
           <Link href="/about" className={`${pathname === '/about' ? 'text-white' : 'hover:text-white transition'}`}>About</Link>
           <Link href="/features" className="hover:text-white transition">Features</Link>
+          <Link href="/pre" className="hover:text-white transition">Magic</Link>
           {isLoggedIn && (
              <Link href="/chatbot" className={`${pathname === '/chatbot' ? 'text-blue-400 font-bold' : 'hover:text-white transition'}`}>
                Assistant

@@ -5,7 +5,8 @@ import { motion } from 'framer-motion';
 import { 
   Zap, Shield, ArrowRight, Star, Play, MessageSquare, 
   Search, FileText, Train, Video, Mail, Globe, Cpu, Users,
-  Check, Instagram, Github, Twitter, Linkedin, Sparkles, Laptop
+  Check, Instagram, Github, Twitter, Linkedin, Sparkles, Laptop,
+  Lightbulb, CheckCircle2
 } from 'lucide-react';
 
 export default function HomePage() {
@@ -104,6 +105,45 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* --- NEW: REAL WORLD SOLUTIONS SECTION --- */}
+      <section className="py-24 px-6 bg-white">
+        <div className="max-w-7xl mx-auto">
+            <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-6">
+                <div className="max-w-2xl">
+                    <div className="flex items-center gap-2 text-blue-600 mb-4">
+                        <Lightbulb size={20} className="fill-current"/>
+                        <span className="text-sm font-black uppercase tracking-widest">Use Cases</span>
+                    </div>
+                    <h3 className="text-5xl font-black tracking-tighter">Solving Real World Problems <br/> with Agentic Intelligence.</h3>
+                </div>
+                <Link href="/dsss" className="text-sm font-black text-blue-600 flex items-center gap-2 group">
+                    EXPLORE ALL SOLUTIONS <ArrowRight size={16} className="group-hover:translate-x-2 transition-all"/>
+                </Link>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <SolutionCard 
+                    title="Content Overload" 
+                    prob="Hours spent watching long videos for just 1 minute of info." 
+                    sol="Summarize 2-hour long YouTube videos into 10 key bullet points instantly."
+                    icon={<Video className="text-red-500" />}
+                />
+                <SolutionCard 
+                    title="The Job Hunt" 
+                    prob="Applying to 50+ jobs manually every day is exhausting." 
+                    sol="Our Agent scans LinkedIn & Google to find the perfect matches for your resume."
+                    icon={<Search className="text-blue-500" />}
+                />
+                <SolutionCard 
+                    title="Travel Anxiety" 
+                    prob="Constantly checking train status and platform numbers." 
+                    sol="Get real-time railway updates directly through the AI node interface."
+                    icon={<Train className="text-indigo-500" />}
+                />
+            </div>
+        </div>
+      </section>
+
       {/* --- Features Grid (Bento) --- */}
       <section className="py-24 px-6 bg-slate-900 text-white overflow-hidden rounded-[4rem] mx-4 mb-24 shadow-3xl">
         <div className="max-w-7xl mx-auto">
@@ -175,8 +215,8 @@ export default function HomePage() {
                 <h5 className="font-black text-sm uppercase tracking-widest mb-8">Resources</h5>
                 <ul className="space-y-4 font-bold text-slate-400 text-sm">
                     <li><Link href="/about" className="hover:text-blue-600 transition-colors">Documentation</Link></li>
-                    <li><Link href="#" className="hover:text-blue-600 transition-colors">Privacy Policy</Link></li>
-                    <li><Link href="#" className="hover:text-blue-600 transition-colors">Terms of Service</Link></li>
+                    <li><Link href="/privacey" className="hover:text-blue-600 transition-colors">Privacy Policy</Link></li>
+                    <li><Link href="/ser" className="hover:text-blue-600 transition-colors">Terms of Service</Link></li>
                 </ul>
             </div>
             <div className="bg-slate-50 p-8 rounded-3xl border border-slate-100">
@@ -191,9 +231,9 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto pt-12 border-t border-slate-100 flex flex-col md:flex-row justify-between items-center gap-6">
             <p className="text-xs font-bold text-slate-400">© 2026 JOB-AI ENGINE. ALL RIGHTS RESERVED.</p>
             <div className="flex gap-8 text-xs font-black text-slate-400">
-                <Link href="#" className="hover:text-blue-600">PRIVACY</Link>
-                <Link href="#" className="hover:text-blue-600">COOKIES</Link>
-                <Link href="#" className="hover:text-blue-600">SECURITY</Link>
+                <Link href="/privacey" className="hover:text-blue-600">PRIVACY</Link>
+                <Link href="/c" className="hover:text-blue-600">COOKIES</Link>
+                <Link href="/ser" className="hover:text-blue-600">SECURITY</Link>
             </div>
         </div>
       </footer>
@@ -204,6 +244,31 @@ export default function HomePage() {
       `}</style>
     </div>
   );
+}
+
+// --- Helper Components ---
+
+function SolutionCard({ title, prob, sol, icon }) {
+    return (
+        <div className="p-10 rounded-[3rem] bg-slate-50 border border-slate-100 hover:bg-white hover:shadow-2xl hover:shadow-blue-200/50 transition-all duration-500 group">
+            <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center shadow-sm mb-8 border border-slate-100 group-hover:scale-110 transition-transform">
+                {icon}
+            </div>
+            <h4 className="text-2xl font-black mb-4">{title}</h4>
+            <div className="space-y-4">
+                <div>
+                    <span className="text-[10px] font-black text-red-500 uppercase tracking-widest block mb-1">Problem</span>
+                    <p className="text-sm font-bold text-slate-500 leading-relaxed">{prob}</p>
+                </div>
+                <div className="pt-4 border-t border-slate-200/50">
+                    <span className="text-[10px] font-black text-emerald-600 uppercase tracking-widest block mb-1">AI Solution</span>
+                    <p className="text-sm font-bold text-slate-900 leading-relaxed flex items-start gap-2">
+                        <CheckCircle2 size={16} className="text-emerald-500 shrink-0 mt-0.5"/> {sol}
+                    </p>
+                </div>
+            </div>
+        </div>
+    )
 }
 
 function Step({num, title, desc}) {

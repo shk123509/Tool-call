@@ -1,97 +1,79 @@
 import UserModel from "@/models/User";
-import dbConnect from "@/lib/dbConnect"
+import dbConnect from "@/lib/dbConnect";
 import bcrypt from "bcryptjs";
+import { NextResponse } from "next/server";
 import { sendVerifictionemail } from "@/helper/sendVerificationEmail";
 
+export async function POST(request: Request) {
+  await dbConnect();
 
-export async function POST(request : Request) {
-    await dbConnect()
+  try {
+    const { username, email, password } = await request.json();
 
-    try {
-    const {username, email, password} = await request.json();
-
-    const verifyCode = Math.floor(100000 + Math.random() * 900000).toString()
-
-
-    const existuserbyemailverifaction = await UserModel.findOne(
-        {
-            email,
-            isVerified : true
-        }
-    )
-
-    if (existuserbyemailverifaction) {
-        return Response.json({
-            message : "User exist with this same email",
-            success : false
-        },{status : 400})
+    if (!username || !email || !password) {
+      return NextResponse.json(
+        { message: "All fields are required" },
+        { status: 400 }
+      );
     }
 
-    const existuserwithemail = await UserModel.findOne(
-        {
-            email
-        }
-    )
+    const existingVerifiedUser = await UserModel.findOne({
+      email,
+      isVerified: true,
+    });
 
-    if (existuserwithemail) {
-       if (existuserwithemail.isVerified) {
-          return Response.json({
-            message :"User already exist with this same emial.",
-            success : false
-        },{status : 400})
-       }
-       else {
-        const hashpassword = await bcrypt.hash(password, 10);
-        existuserwithemail.password = hashpassword;
-        existuserwithemail.verifyCode = verifyCode;
-        existuserwithemail.verifyCodeExpiry = new Date(Date.now() + 3600000)
-        await existuserwithemail.save()
-       }
-    }
-    else {
-        const hashpassword = await bcrypt.hash(password, 10);
-
-        const expire = new Date(Date.now() + 3600000)
-
-        const createUser = await UserModel.create({
-            username,
-            email,
-            password: hashpassword,
-            verifyCode,
-            verifyCodeExpiry:expire, 
-            isVerified: true,
-            isAcceptingMessages:true,
-            messages: []
-        })
-
-        if (!createUser) {
-            return Response.json({
-            message :"User dose not created.",
-            success : false
-        },{status : 400})
-        }
+    if (existingVerifiedUser) {
+      return NextResponse.json(
+        { message: "User already exists with this email" },
+        { status: 400 }
+      );
     }
 
-    // Send verifaction code.
-    const emailsendres = await sendVerifictionemail(email, username, verifyCode)
+    const verifyCode = Math.floor(100000 + Math.random() * 900000).toString();
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const expiry = new Date(Date.now() + 60 * 60 * 1000);
 
-    if (!emailsendres.success) {
-        return Response.json({
-            message :"Somthing went wrong to send messages.",
-            success : false
-        },{status : 400})
+    const existingUser = await UserModel.findOne({ email });
+
+    if (existingUser) {
+      existingUser.password = hashedPassword;
+      existingUser.verifyCode = verifyCode;
+      existingUser.verifyCodeExpiry = expiry;
+      await existingUser.save();
+    } else {
+      await UserModel.create({
+        username,
+        email,
+        password: hashedPassword,
+        verifyCode,
+        verifyCodeExpiry: expiry,
+        isVerified: false,
+        isAcceptingMessages: true,
+        messages: [],
+      });
     }
 
-    return Response.json({
-            message :"User register successfully Verify your account.",
-            success : true
-        },{status : 200})
+    const emailResult = await sendVerifictionemail(
+      email,
+      username,
+      verifyCode
+    );
 
-
-    } catch (error:any) {
-        return Response.json({
-            message :error.message,
-            success : false
-        },{status : 500})
+    if (!emailResult.success) {
+      return NextResponse.json(
+        { message: "Failed to send verification email" },
+        { status: 500 }
+      );
     }
+
+    return NextResponse.json(
+      { message: "User registered. Verify your account.", success: true },
+      { status: 200 }
+    );
+  } catch (error: any) {
+    return NextResponse.json(
+      { message: error.message },
+      { status: 500 }
+    );
+  }
 }

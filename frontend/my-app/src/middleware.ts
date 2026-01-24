@@ -33,5 +33,6 @@ export const config = {
     "/login",
     "/sign-up",
     "/verify-code",
+    "/profiles"
   ],
 };

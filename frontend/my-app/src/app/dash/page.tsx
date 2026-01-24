@@ -11,6 +11,7 @@ import {
   ArrowRight,
   ShieldCheck,
   Activity,
+  ExternalLink,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -188,7 +189,7 @@ export default function ApiDashboard() {
         </h1>
       </header>
 
-      {/* KEYS */}
+      {/* KEYS GRID */}
       <main className="max-w-6xl mx-auto grid sm:grid-cols-2 lg:grid-cols-3 gap-8 relative z-10">
         {keys.map((key, index) => (
           <motion.div
@@ -230,6 +231,26 @@ export default function ApiDashboard() {
           </motion.div>
         ))}
       </main>
+
+      {/* --- ADDED SECTION: CUSTOM API KEY REDIRECT --- */}
+      <div className="max-w-6xl mx-auto mt-20 relative z-10">
+        <div className="bg-gradient-to-br from-indigo-500/10 to-transparent border border-indigo-500/20 rounded-[3rem] p-10 flex flex-col md:flex-row items-center justify-between gap-8">
+          <div className="max-w-xl">
+            <h3 className="text-2xl font-black text-white mb-3">Facing issues with Vault Keys?</h3>
+            <p className="text-slate-400 text-sm leading-relaxed">
+              If the public node keys are hitting quota limits or not working, you can generate your own personal **Gemini API Key** for free to ensure uninterrupted service.
+            </p>
+          </div>
+          <a 
+            href="https://aistudio.google.com/welcome?utm_source=PMAX&utm_medium=display&utm_campaign=Cloud-SS-DR-AIS-FY26-global-pmax-1713578&utm_content=pmax&gad_source=1&gad_campaignid=23417432327&gbraid=0AAAAACn9t65jvpG2FZO8pW4Od7j9ggs6y&gclid=Cj0KCQiA1czLBhDhARIsAIEc7uhj8gUuhMrvF-Hwr19gSiMPfuOcXXgNkkltaNYeEeLKrGIEdg9sXqAaAuzlEALw_wcB" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="group flex items-center gap-3 bg-white text-black px-8 py-5 rounded-2xl font-black uppercase text-xs tracking-widest hover:bg-indigo-500 hover:text-white transition-all whitespace-nowrap"
+          >
+            Create Personal Key <ExternalLink size={18} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+          </a>
+        </div>
+      </div>
     </div>
   );
 }

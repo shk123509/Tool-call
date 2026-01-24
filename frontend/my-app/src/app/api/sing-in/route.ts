@@ -55,6 +55,7 @@ export async function POST(request: NextRequest) {
       message: "Login successful",
       success: true,
     });
+    console.log("API =>", process.env.NEXT_PUBLIC_API_URL)
 
     response.cookies.set("token", token, {
       httpOnly: true,

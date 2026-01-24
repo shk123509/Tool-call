@@ -31,6 +31,7 @@ const LoginPage = () => {
 
   const [userMessages, setUserMessages] = useState("");
   const [isSumbitbutton, setIsSumbitbutton] = useState(false);
+   const [username, setUsername] = useState('')
 
   // Zod implementation
   const form = useForm<z.infer<typeof signInSchema>>({
@@ -136,9 +137,9 @@ const LoginPage = () => {
 
         <div className="text-center mt-4 text-gray-600">
           <p>
-            Not a member?{' '}
-            <Link href="/sign-up" className="text-blue-600 hover:text-blue-800 font-semibold">
-              Sign Up
+            Verify Your Email?{' '}
+            <Link href={`/verifycode/${username}`} className="text-blue-600 hover:text-blue-800 font-semibold">
+              Verify-Emial
             </Link>
           </p>
         </div>

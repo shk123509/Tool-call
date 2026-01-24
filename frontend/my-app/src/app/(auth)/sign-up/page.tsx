@@ -85,8 +85,8 @@ export default function SignUpForm() {
             //     }
             // )
 
-            route.replace(`/verifycode/${username}`)
-            // route.push("/")
+            // route.replace(`/verifycode/${username}`)
+            route.push("/sign-in")
         } catch (error) {
             console.error('Error during sign-up:', error);
 

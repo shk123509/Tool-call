@@ -59,7 +59,7 @@ export async function POST(request : Request) {
             password: hashpassword,
             verifyCode,
             verifyCodeExpiry:expire, 
-            isVerified: false,
+            isVerified: true,
             isAcceptingMessages:true,
             messages: []
         })
@@ -88,9 +88,9 @@ export async function POST(request : Request) {
         },{status : 200})
 
 
-    } catch (error) {
+    } catch (error:any) {
         return Response.json({
-            message :error,
+            message :error.message,
             success : false
         },{status : 500})
     }

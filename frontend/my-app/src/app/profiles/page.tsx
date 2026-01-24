@@ -121,7 +121,7 @@ export default function ProfilePage() {
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-10">
           
-          {/* SIDEBAR NAVIGATION (Responsive Horizontal Scroll on Mobile) */}
+          {/* SIDEBAR NAVIGATION */}
           <div className="lg:col-span-3 h-fit lg:sticky lg:top-32">
             <p className="hidden lg:block text-[10px] font-black text-slate-600 uppercase tracking-[0.3em] mb-4 ml-4 italic">Core Terminal</p>
             <div className="flex flex-row lg:flex-col gap-2 overflow-x-auto lg:overflow-visible pb-2 lg:pb-0 no-scrollbar">
@@ -146,7 +146,6 @@ export default function ProfilePage() {
             <AnimatePresence mode="wait">
               {activeTab === 'overview' && (
                 <motion.div key="overview" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-6 md:space-y-8">
-                   {/* STATS GRID */}
                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
                       <StatCard title="Total Uptime" value="99.9%" icon={<Activity size={20} className="text-emerald-500"/>} />
                       <StatCard title="API Requests" value="12,402" icon={<Cpu size={20} className="text-blue-500"/>} />
@@ -169,8 +168,9 @@ export default function ProfilePage() {
                 <motion.div key="edit" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="bg-[#0a0a0a] border border-white/5 rounded-[2rem] md:rounded-[3rem] p-6 md:p-10">
                    <h2 className="text-xl md:text-2xl font-black text-white mb-6 md:mb-8">System Modifications</h2>
                    <div className="space-y-6 max-w-xl">
-                      <InputField label="Update Username" value={editData.username} onChange={(v) => setEditData({...editData, username: v})} />
-                      <InputField label="Update Email" value={editData.email} onChange={(v) => setEditData({...editData, email: v})} />
+                      {/* FIXED TYPE ERRORS BELOW */}
+                      <InputField label="Update Username" value={editData.username} onChange={(v: string) => setEditData({...editData, username: v})} />
+                      <InputField label="Update Email" value={editData.email} onChange={(v: string) => setEditData({...editData, email: v})} />
                       <button onClick={handleUpdate} disabled={updateLoading} className="w-full bg-blue-600 hover:bg-blue-700 py-4 md:py-5 rounded-xl md:rounded-2xl font-black uppercase text-xs tracking-widest flex items-center justify-center gap-3 transition-all active:scale-95 disabled:opacity-50">
                          {updateLoading ? <Loader2 className="animate-spin" size={18}/> : <RefreshCcw size={18}/>} Commit Changes
                       </button>
@@ -182,8 +182,8 @@ export default function ProfilePage() {
                 <motion.div key="password" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="bg-[#0a0a0a] border border-white/5 rounded-[2rem] md:rounded-[3rem] p-6 md:p-10">
                    <h2 className="text-xl md:text-2xl font-black text-red-500 mb-6 md:mb-8 tracking-tighter italic">Rotate Access Keys</h2>
                    <div className="space-y-6 max-w-xl">
-                      <InputField label="Old Password" type="password" value={passData.oldPassword} onChange={(v) => setPassData({...passData, oldPassword: v})} />
-                      <InputField label="New Password" type="password" value={passData.Newpassword} onChange={(v) => setPassData({...passData, Newpassword: v})} />
+                      <InputField label="Old Password" type="password" value={passData.oldPassword} onChange={(v: string) => setPassData({...passData, oldPassword: v})} />
+                      <InputField label="New Password" type="password" value={passData.Newpassword} onChange={(v: string) => setPassData({...passData, Newpassword: v})} />
                       <button onClick={handlePasswordChange} disabled={passLoading} className="w-full bg-red-600/10 border border-red-500/20 text-red-500 py-4 md:py-5 rounded-xl md:rounded-2xl font-black uppercase text-xs tracking-[0.1em] md:tracking-[0.2em] flex items-center justify-center gap-3 transition-all active:scale-95 disabled:opacity-50">
                          {passLoading ? <Loader2 className="animate-spin" size={18}/> : <Key size={18}/>} Re-Encrypt Session
                       </button>

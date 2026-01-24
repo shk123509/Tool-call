@@ -1,41 +1,84 @@
 "use client";
-import React, { useState, useEffect, useRef } from 'react';
-import { Send, Bot, User, MessageSquare, Plus, Trash2, Menu, Key as KeyIcon, LayoutDashboard, X, ChevronLeft, ChevronRight, AlertCircle } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
-import Link from 'next/link';
+
+import React, { useState, useEffect, useRef } from "react";
+import {
+  Send,
+  Bot,
+  User,
+  MessageSquare,
+  Plus,
+  Trash2,
+  Menu,
+  Key as KeyIcon,
+  LayoutDashboard,
+  X,
+  ChevronLeft,
+  ChevronRight,
+  AlertCircle,
+} from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import Link from "next/link";
+
+/* =======================
+   TYPES (VERY IMPORTANT)
+======================= */
+type Message = {
+  role: "user" | "bot";
+  content: string;
+};
+
+type Chat = {
+  id: number;
+  title: string;
+  messages: Message[];
+};
 
 export default function JobAIDashboard() {
-  const [chats, setChats] = useState([]);
-  const [activeChatId, setActiveChatId] = useState(null);
-  const [input, setInput] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [userApiKey, setUserApiKey] = useState('');
-  const [isKeyValid, setIsKeyValid] = useState(false);
-  const scrollRef = useRef(null);
+  /* =======================
+     STATE
+  ======================= */
+  const [chats, setChats] = useState<Chat[]>([]);
+  const [activeChatId, setActiveChatId] = useState<number | null>(null);
+  const [input, setInput] = useState<string>("");
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
+  const [userApiKey, setUserApiKey] = useState<string>("");
+  const [isKeyValid, setIsKeyValid] = useState<boolean>(false);
 
-  // --- Reset API Key Function ---
+  const scrollRef = useRef<HTMLDivElement | null>(null);
+
+  /* =======================
+     HELPERS
+  ======================= */
   const handleResetKey = () => {
-    localStorage.removeItem('user_gemini_key');
+    localStorage.removeItem("user_gemini_key");
     setIsKeyValid(false);
-    setUserApiKey('');
+    setUserApiKey("");
     if (window.innerWidth < 768) setIsSidebarOpen(false);
   };
 
   const createNewChat = () => {
     const newId = Date.now();
-    const newChat = { id: newId, title: 'New Conversation', messages: [] };
-    setChats(prev => [newChat, ...prev]);
+    const newChat: Chat = {
+      id: newId,
+      title: "New Conversation",
+      messages: [],
+    };
+
+    setChats((prev) => [newChat, ...prev]);
     setActiveChatId(newId);
+
     if (window.innerWidth < 768) setIsSidebarOpen(false);
   };
 
-  const deleteChat = (id, e) => {
+  const deleteChat = (id: number, e: React.MouseEvent) => {
     e.stopPropagation();
-    const updated = chats.filter(c => c.id !== id);
+
+    const updated = chats.filter((c) => c.id !== id);
     setChats(updated);
+
     if (activeChatId === id && updated.length > 0) {
       setActiveChatId(updated[0].id);
     } else if (updated.length === 0) {
@@ -43,29 +86,38 @@ export default function JobAIDashboard() {
     }
   };
 
+  /* =======================
+     EFFECTS
+  ======================= */
   useEffect(() => {
-    const savedChats = localStorage.getItem('job_ai_history');
-    const savedKey = localStorage.getItem('user_gemini_key');
-    
-    if (savedKey && savedKey.startsWith('AIza')) {
+    const savedChats = localStorage.getItem("job_ai_history");
+    const savedKey = localStorage.getItem("user_gemini_key");
+
+    if (savedKey && savedKey.startsWith("AIza")) {
       setUserApiKey(savedKey);
       setIsKeyValid(true);
     }
+
     if (savedChats) {
-      const parsed = JSON.parse(savedChats);
+      const parsed: Chat[] = JSON.parse(savedChats);
       if (parsed.length > 0) {
         setChats(parsed);
         setActiveChatId(parsed[0].id);
-      } else { createNewChat(); }
-    } else { createNewChat(); }
+      } else {
+        createNewChat();
+      }
+    } else {
+      createNewChat();
+    }
 
     if (window.innerWidth >= 768) setIsSidebarOpen(true);
   }, []);
 
   useEffect(() => {
     if (chats.length > 0) {
-      localStorage.setItem('job_ai_history', JSON.stringify(chats));
+      localStorage.setItem("job_ai_history", JSON.stringify(chats));
     }
+
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
@@ -73,66 +125,111 @@ export default function JobAIDashboard() {
 
   const saveKey = () => {
     const cleanKey = userApiKey.trim();
-    if (cleanKey.startsWith('AIza')) {
-      localStorage.setItem('user_gemini_key', cleanKey);
+    if (cleanKey.startsWith("AIza")) {
+      localStorage.setItem("user_gemini_key", cleanKey);
       setIsKeyValid(true);
-    } else { alert("Arey bhai, sahi API key toh daalo!"); }
-  };
-
-  // --- Main Message Handler with Error Management ---
-  const handleSendMessage = async () => {
-    const currentKey = localStorage.getItem('user_gemini_key') || userApiKey;
-    if (!input.trim() || isLoading || !currentKey) return;
-    
-    const currentId = activeChatId;
-    const userMsg = { role: 'user', content: input };
-    
-    setChats(prev => prev.map(chat => {
-      if (chat.id === currentId) {
-        const newTitle = chat.messages.length === 0 ? input.substring(0, 30) : chat.title;
-        return { ...chat, title: newTitle, messages: [...chat.messages, userMsg] };
-      }
-      return chat;
-    }));
-    
-    setInput('');
-    setIsLoading(true);
-
-    try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/chat`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: input, api_key: currentKey.trim() }),
-      });
-
-      const data = await response.json();
-
-      // Check if Quota Exhausted (429)
-      if (response.status === 429 || (data.reply && data.reply.includes("RESOURCE_EXHAUSTED"))) {
-        throw new Error("QUOTA_LIMIT");
-      }
-
-      setChats(prev => prev.map(chat => 
-        chat.id === currentId ? { ...chat, messages: [...chat.messages, { role: 'bot', content: data.reply }] } : chat
-      ));
-
-    } catch (error) {
-      let errorMessage = "⚠️ Error: Connection lost with AI.";
-      
-      if (error.message === "QUOTA_LIMIT") {
-        errorMessage = "🛑 **QUOTA EXCEEDED:** This API key has exhausted its daily free limit. Please **Reset API Key** from the sidebar and use a new one or get a billing-enabled key to continue.";
-      }
-
-      setChats(prev => prev.map(chat => 
-        chat.id === currentId ? { ...chat, messages: [...chat.messages, { role: 'bot', content: errorMessage }] } : chat
-      ));
-    } finally { 
-      setIsLoading(false); 
+    } else {
+      alert("Bhai valid Gemini API key daal 😅");
     }
   };
 
-  const activeChat = chats.find(c => c.id === activeChatId) || { messages: [] };
+  /* =======================
+     SEND MESSAGE
+  ======================= */
+  const handleSendMessage = async () => {
+    const currentKey =
+      localStorage.getItem("user_gemini_key") || userApiKey;
 
+    if (!input.trim() || isLoading || !currentKey || !activeChatId) return;
+
+    const userMsg: Message = { role: "user", content: input };
+    const currentId = activeChatId;
+
+    setChats((prev) =>
+      prev.map((chat) =>
+        chat.id === currentId
+          ? {
+              ...chat,
+              title:
+                chat.messages.length === 0
+                  ? input.substring(0, 30)
+                  : chat.title,
+              messages: [...chat.messages, userMsg],
+            }
+          : chat
+      )
+    );
+
+    setInput("");
+    setIsLoading(true);
+
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/chat`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            message: userMsg.content,
+            api_key: currentKey.trim(),
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (response.status === 429) {
+        throw new Error("QUOTA_LIMIT");
+      }
+
+      setChats((prev) =>
+        prev.map((chat) =>
+          chat.id === currentId
+            ? {
+                ...chat,
+                messages: [
+                  ...chat.messages,
+                  { role: "bot", content: data.reply },
+                ],
+              }
+            : chat
+        )
+      );
+    } catch (error: any) {
+      const errorMessage =
+        error.message === "QUOTA_LIMIT"
+          ? "🛑 **QUOTA EXCEEDED:** API key limit reached. Reset key."
+          : "⚠️ Error connecting to AI.";
+
+      setChats((prev) =>
+        prev.map((chat) =>
+          chat.id === currentId
+            ? {
+                ...chat,
+                messages: [
+                  ...chat.messages,
+                  { role: "bot", content: errorMessage },
+                ],
+              }
+            : chat
+        )
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const activeChat: Chat =
+    chats.find((c) => c.id === activeChatId) || {
+      id: 0,
+      title: "",
+      messages: [],
+    };
+
+  /* =======================
+     UI
+  ======================= */
+  
   return (
     <div className="flex h-screen bg-[#0a0a0a] text-gray-200 overflow-hidden font-sans pt-16 relative">
       
@@ -270,4 +367,5 @@ export default function JobAIDashboard() {
       `}</style>
     </div>
   );
+
 }

@@ -9,6 +9,24 @@ import {
   Lightbulb, CheckCircle2
 } from 'lucide-react';
 
+/* --- TYPES --- */
+interface SolutionCardProps {
+  title: string;
+  prob: string;
+  sol: string;
+  icon: React.ReactNode;
+}
+
+interface StepProps {
+  num: string;
+  title: string;
+  desc: string;
+}
+
+interface SocialIconProps {
+  icon: React.ReactNode;
+}
+
 export default function HomePage() {
   return (
     <div className="min-h-screen bg-white text-slate-900 selection:bg-blue-100 font-sans">
@@ -105,7 +123,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* --- NEW: REAL WORLD SOLUTIONS SECTION --- */}
+      {/* --- REAL WORLD SOLUTIONS SECTION --- */}
       <section className="py-24 px-6 bg-white">
         <div className="max-w-7xl mx-auto">
             <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-6">
@@ -246,9 +264,9 @@ export default function HomePage() {
   );
 }
 
-// --- Helper Components ---
+// --- Helper Components with Fixed Types ---
 
-function SolutionCard({ title, prob, sol, icon }) {
+function SolutionCard({ title, prob, sol, icon }: SolutionCardProps) {
     return (
         <div className="p-10 rounded-[3rem] bg-slate-50 border border-slate-100 hover:bg-white hover:shadow-2xl hover:shadow-blue-200/50 transition-all duration-500 group">
             <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center shadow-sm mb-8 border border-slate-100 group-hover:scale-110 transition-transform">
@@ -271,7 +289,7 @@ function SolutionCard({ title, prob, sol, icon }) {
     )
 }
 
-function Step({num, title, desc}) {
+function Step({num, title, desc}: StepProps) {
     return (
         <div className="group">
             <div className="text-6xl font-black text-slate-100 group-hover:text-blue-100 transition-colors mb-6">{num}</div>
@@ -281,7 +299,7 @@ function Step({num, title, desc}) {
     )
 }
 
-function SocialIcon({icon}) {
+function SocialIcon({icon}: SocialIconProps) {
     return (
         <div className="w-10 h-10 bg-slate-50 border border-slate-100 rounded-xl flex items-center justify-center text-slate-400 hover:bg-blue-600 hover:text-white transition-all cursor-pointer">
             {icon}

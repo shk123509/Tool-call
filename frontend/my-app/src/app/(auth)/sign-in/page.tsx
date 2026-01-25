@@ -137,9 +137,9 @@ const LoginPage = () => {
 
         <div className="text-center mt-4 text-gray-600">
           <p>
-            Verify Your Email?{' '}
-            <Link href={`/verifycode/${username}`} className="text-blue-600 hover:text-blue-800 font-semibold">
-              Verify-Emial
+            Not Members?{' '}
+            <Link href={"/sign-up"} className="text-blue-600 hover:text-blue-800 font-semibold">
+              Sign-up
             </Link>
           </p>
         </div>

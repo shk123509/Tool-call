@@ -9,12 +9,16 @@ export const usernamevalid = z.
 
 export const signUpSchema = z.object(
     {
-        username : usernamevalid,
+        username: usernamevalid,
         email: z.string()
-        .email({ message: 'Invalid email address' }),
-        password : z.
-        string()
-        .min(6, {message:"Minimum 6 character is required"})
-        .max(20, {message : "Maximum 20 lenght"})
+            .email({ message: 'Invalid email address' }),
+        password: z
+            .string()
+            .min(6, { message: "Minimum 6 characters required" })
+            .max(20, { message: "Maximum 20 characters allowed" })
+            .regex(/[a-z]/, { message: "At least one lowercase letter required" })
+            .regex(/[A-Z]/, { message: "At least one uppercase letter required" })
+            .regex(/[0-9]/, { message: "At least one number required" })
+            .regex(/[@$!%*?&#]/, { message: "At least one special character required" })
     }
 )    

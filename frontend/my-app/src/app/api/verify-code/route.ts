@@ -50,7 +50,7 @@ export async function POST(request: Request) {
         
 
     } catch (error: any) {
-        return Response.json({ success: false, message: "somting went wrong while verify code." }, { status: 500 })
+        return Response.json({ success: false, message: error.message }, { status: 500 })
     }
 }
 

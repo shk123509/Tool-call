@@ -36,8 +36,8 @@ const Page = () => {
       });
 
       router.replace("/sign-in");
-    } catch (err) {
-      setError("Something went wrong during code verification.");
+    } catch (err:any) {
+      setError(err);
     } finally {
       setLoading(false);
     }
